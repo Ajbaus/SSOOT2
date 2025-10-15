@@ -1,13 +1,14 @@
 #pragma once
 #ifndef OSM_FILE_H
 #define OSM_FILE_H
+#include <stdint.h>
 
 typedef struct {
-    int  process_id;
-    char file_name[15];   // 14 + '\0' para uso local
-    char mode;            // 'r' o 'w'
-    int  size;            // solo informativo en esta base
-    int  virtual_address; // vaddr inicial (por ahora 0 en la base)
+    int      process_id;
+    char     file_name[15];   /* 14 + '\0' */
+    char     mode;            /* 'r' o 'w' */
+    uint64_t size;            /* tamaño del archivo */
+    uint32_t vaddr;           /* vaddr inicial */
 } osmFile;
 
 #endif

@@ -1,9 +1,12 @@
+#ifdef MAIN_TEST_3
 #include "../os_memory_API/os_memory_API.h"
 #include <stdio.h>
 #include <string.h>
 
+__attribute__((unused))
 static const char* default_mem = "memorias/memformat.bin";
 
+__attribute__((unused))
 static void ensure_local_src(void) {
     FILE* f = fopen("archivo_local.txt", "wb");
     if (!f) return;
@@ -12,7 +15,6 @@ static void ensure_local_src(void) {
     fclose(f);
 }
 
-#ifdef MAIN_TEST_3
 int main(int argc, char const* argv[]) {
     const char* mempath = (argc > 1) ? argv[1] : default_mem;
     int do_format = !(argc > 2 && strcmp(argv[2], "--no-format") == 0);
@@ -29,7 +31,7 @@ int main(int argc, char const* argv[]) {
     if (f1) { write_file(f1, "archivo_local.txt"); close_file(f1); }
 
     list_files(10);
-    frame_bitmap_status();  // seguirá en 0/65536 hasta implementar IPT+bitmap real
+    frame_bitmap_status();
 
     osmFile* f2 = open_file(10, "log.txt", 'r');
     if (f2) { read_file(f2, "copia_local.txt"); close_file(f2); }

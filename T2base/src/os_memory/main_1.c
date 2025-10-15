@@ -1,10 +1,11 @@
+#ifdef MAIN_TEST_1
 #include "../os_memory_API/os_memory_API.h"
 #include <stdio.h>
 #include <string.h>
 
+__attribute__((unused))
 static const char* default_mem = "memorias/memformat.bin";
 
-#ifdef MAIN_TEST_1
 int main(int argc, char const* argv[]) {
     const char* mempath = (argc > 1) ? argv[1] : default_mem;
     int do_format = !(argc > 2 && strcmp(argv[2], "--no-format") == 0);
