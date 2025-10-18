@@ -5,9 +5,6 @@
 #include "os_memory_API.h"
 #include "../osm_File/osm_File.h"
 
-// =============================================================
-//  CONSTANTES Y VARIABLES GLOBALES
-// =============================================================
 #define PCBS_SIZE       (size_t)8192
 #define IPT_SIZE        (size_t)196608
 #define BITMAP_SIZE     (size_t)8192
@@ -18,13 +15,8 @@
 
 char* path = NULL;
 
-// =============================================================
-//  FUNCIONES INTERNAS DE APOYO
-// =============================================================
-
-// Retorna el offset de un PCB en el archivo
 static long pcb_offset(int index) {
-    return index * 256; // Cada entrada mide 256 bytes
+    return index * 256;
 }
 
 // Busca un proceso por ID. Retorna índice o -1 si no existe
@@ -56,9 +48,6 @@ static int find_free_pcb_slot(FILE* f) {
     return -1;
 }
 
-// =============================================================
-//  BONUS: FORMATEAR MEMORIA
-// =============================================================
 int format_memory(char* memory_path) {
     FILE* f = fopen(memory_path, "wb");
     if (!f) {
@@ -76,9 +65,6 @@ int format_memory(char* memory_path) {
     return 0;
 }
 
-// =============================================================
-//  FUNCIONES GENERALES
-// =============================================================
 void mount_memory(char* memory_path) {
     path = strdup(memory_path);
     printf("Memoria montada en: %s\n", path);
@@ -128,11 +114,8 @@ void list_processes() {
     fclose(f);
 }
 
-// =============================================================
-//  FUNCIONES PARA PROCESOS
-// =============================================================
 
-// Crea un proceso en la tabla de PCBs
+// Crear un proceso en la tabla de PCBs
 int start_process(int process_id, char* process_name) {
     FILE* f = fopen(path, "r+b");
     if (!f) {
@@ -173,7 +156,7 @@ int start_process(int process_id, char* process_name) {
     return 0;
 }
 
-// Termina un proceso y libera su PCB
+// Terminar un proceso y liberar su PCB
 int finish_process(int process_id) {
     FILE* f = fopen(path, "r+b");
     if (!f) {
@@ -197,7 +180,6 @@ int finish_process(int process_id) {
     return 0;
 }
 
-// Borra todos los procesos activos
 int clear_all_processes() {
     FILE* f = fopen(path, "r+b");
     if (!f) {
@@ -252,11 +234,6 @@ int file_table_slots(int process_id) {
     return libres;
 }
 
-// =============================================================
-//  FUNCIONES PARA ARCHIVOS
-// =============================================================
-
-// Abre un archivo en modo 'r' (lectura) o 'w' (escritura)
 osmFile* open_file(int process_id, char* file_name, char mode) {
     FILE* f = fopen(path, "r+b");
     if (!f) {
@@ -316,7 +293,7 @@ osmFile* open_file(int process_id, char* file_name, char mode) {
         }
     }
 
-    // Si modo escritura: crear nuevo archivo
+    // Si es modo escritura: crear nuevo archivo
     if (mode == 'w') {
         for (int i = 0; i < 10; i++) {
             long entry = tabla_offset + i * 24;
@@ -327,11 +304,14 @@ osmFile* open_file(int process_id, char* file_name, char mode) {
                 fseek(f, entry, SEEK_SET);
                 unsigned char valid_bit = 0x01;
                 fwrite(&valid_bit, 1, 1, f);
+
                 char name14[14] = {0};
                 strncpy(name14, file_name, 14);
                 fwrite(name14, 1, 14, f);
+
                 unsigned char size[5] = {0};
                 fwrite(size, 1, 5, f); // tamaño inicial 0
+
                 unsigned char addr[4] = {0};
                 fwrite(addr, 1, 4, f);
                 fclose(f);
@@ -353,7 +333,6 @@ osmFile* open_file(int process_id, char* file_name, char mode) {
     return NULL;
 }
 
-// Simula escribir datos desde un archivo local a la memoria simulada
 int write_file(osmFile* file_desc, char* src) {
     if (!file_desc || file_desc->mode != 'w') {
         printf("Error: descriptor inválido o modo incorrecto.\n");
@@ -373,7 +352,6 @@ int write_file(osmFile* file_desc, char* src) {
     size_t size = ftell(local);
     rewind(local);
 
-    // Simular escritura en zona de datos (offset absoluto)
     size_t offset_data = PCBS_SIZE + IPT_SIZE + BITMAP_SIZE;
     fseek(f, offset_data, SEEK_SET);
 
@@ -392,7 +370,6 @@ int write_file(osmFile* file_desc, char* src) {
     return (int)total;
 }
 
-// Copia un archivo de la memoria simulada a disco local
 int read_file(osmFile* file_desc, char* dest) {
     if (!file_desc || file_desc->mode != 'r') {
         printf("Error: descriptor inválido o modo incorrecto.\n");
@@ -455,7 +432,7 @@ void delete_file(int process_id, char* file_name) {
         return;
     }
 
-    // Buscar archivo y borrarlo
+    // Una vez que encuentra el proceso: Buscar archivo y borrarlo
     long tabla_offset = pcb_offset(pcb_index) + 16;
     for (int i = 0; i < 10; i++) {
         long entry = tabla_offset + i * 24;
